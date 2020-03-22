@@ -2,7 +2,9 @@
 
 namespace VCR\Storage;
 
+use Exception;
 use org\bovigo\vfs\vfsStream;
+use Traversable;
 
 /**
  * Test integration of PHPVCR with PHPUnit.
@@ -43,20 +45,8 @@ class TestStorage extends AbstractStorage
         $this->recording = $recording;
     }
 
-    public function next()
+    public function getIterator()
     {
-        list($this->position, $this->current) = each($this->recording);
-
-        return $this->current;
-    }
-
-    public function valid()
-    {
-        return (boolean) $this->position;
-    }
-
-    public function rewind()
-    {
-        reset($this->recording);
+        return new \ArrayIterator([$this->recording]);
     }
 }

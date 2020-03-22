@@ -11,42 +11,17 @@ use VCR\VCRException;
  * A Storage can be iterated using standard loops.
  * New recordings can be stored.
  */
-abstract class AbstractStorage implements Storage
+abstract class AbstractStorage implements Storage, \IteratorAggregate
 {
-    /**
-     * @var resource File handle.
-     */
-    protected $handle;
-
     /**
      * @var string Path to storage file.
      */
     protected $filePath;
 
     /**
-     * @var array Current parsed record.
-     */
-    protected $current;
-
-    /**
-     * @var integer Number of the current recording.
-     */
-    protected $position = 0;
-
-    /**
-     * @var boolean True when parser is at the end of the file.
-     */
-    protected $isEOF = false;
-
-    /**
      * @var boolean If the cassette file is new.
      */
     protected $isNew = false;
-
-    /**
-     * @var boolean If the current position is valid.
-     */
-    protected $isValidPosition = true;
 
     /**
      * Creates a new file store.
@@ -75,28 +50,6 @@ abstract class AbstractStorage implements Storage
 
         Assertion::file($this->filePath, "Specified path '{$this->filePath}' is not a file.");
         Assertion::readable($this->filePath, "Specified file '{$this->filePath}' must be readable.");
-
-        $this->handle = fopen($this->filePath, 'r+');
-    }
-
-    /**
-     * Returns the current record.
-     *
-     * @return array Parsed current record.
-     */
-    public function current()
-    {
-        return $this->current;
-    }
-
-    /**
-     * Returns the current key.
-     *
-     * @return integer
-     */
-    public function key()
-    {
-        return $this->position;
     }
 
     /**
@@ -107,15 +60,5 @@ abstract class AbstractStorage implements Storage
     public function isNew()
     {
         return $this->isNew;
-    }
-
-    /**
-     * Closes file handle.
-     */
-    public function __destruct()
-    {
-        if (is_resource($this->handle)) {
-            fclose($this->handle);
-        }
     }
 }

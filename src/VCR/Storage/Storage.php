@@ -8,7 +8,7 @@ namespace VCR\Storage;
  * A Storage can be iterated using standard loops.
  * New recordings can be stored.
  */
-interface Storage extends \Iterator
+interface Storage extends \Traversable
 {
     /**
      * Stores an array of data.

@@ -2,7 +2,7 @@
 
 namespace VCR\Storage;
 
-use VCR\Util\Assertion;
+use ArrayIterator;
 
 /**
  * Json based storage for records.
@@ -17,92 +17,18 @@ class Json extends AbstractStorage
      */
     public function storeRecording(array $recording)
     {
-        fseek($this->handle, -1, SEEK_END);
-        if (ftell($this->handle) > 2) {
-            fwrite($this->handle, ',');
-        }
-        if (defined('JSON_PRETTY_PRINT')) {
-            $json = json_encode($recording, JSON_PRETTY_PRINT);
-        } else {
-            $json = json_encode($recording);
-        }
-        fwrite($this->handle, $json . ']');
-        fflush($this->handle);
+        $recordings = iterator_to_array($this);
+        $recordings[] = $recording;
+
+
+        file_put_contents(
+            $this->filePath,
+            json_encode($recordings, JSON_PRETTY_PRINT)
+        );
     }
 
-    /**
-     * Parses the next record.
-     *
-     * @return void
-     */
-    public function next()
+    public function getIterator()
     {
-        $this->current = json_decode($this->readNextRecord(), true);
-        ++$this->position;
-    }
-
-    /**
-     * Returns the next record in raw format.
-     *
-     * @return string Next record in raw format.
-     */
-    protected function readNextRecord()
-    {
-        $depth = 0;
-        $isInRecord = false;
-        $record = '';
-
-        while (false !== ($char = fgetc($this->handle))) {
-            if ($char === '{') {
-                ++$depth;
-            }
-            if ($char === '}') {
-                --$depth;
-            }
-
-            if (!$isInRecord && $char === '{') {
-                $isInRecord = true;
-            }
-
-            if ($isInRecord) {
-                $record .= $char;
-            }
-
-            if ($isInRecord && $char === '}' && $depth == 0) {
-                break;
-            }
-        }
-
-        if ($char == false) {
-            $this->isEOF = true;
-        }
-
-        return $record;
-    }
-
-    /**
-     * Resets the storage to the beginning.
-     *
-     * @return void
-     */
-    public function rewind()
-    {
-        rewind($this->handle);
-        $this->isEOF = false;
-        $this->position = 0;
-    }
-
-    /**
-     * Returns true if the current record is valid.
-     *
-     * @return boolean True if the current record is valid.
-     */
-    public function valid()
-    {
-        if (is_null($this->current)) {
-            $this->next();
-        }
-
-        return !$this->isEOF;
+        return new ArrayIterator(json_decode(file_get_contents($this->filePath), true));
     }
 }

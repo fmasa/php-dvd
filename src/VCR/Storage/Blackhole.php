@@ -2,10 +2,13 @@
 
 namespace VCR\Storage;
 
+use Exception;
+use Traversable;
+
 /**
  * Backhole storage, the storage that looses everything.
  */
-class Blackhole implements Storage
+class Blackhole implements Storage, \IteratorAggregate
 {
     /**
      * {@inheritDoc}
@@ -22,26 +25,8 @@ class Blackhole implements Storage
         return true;
     }
 
-    public function current()
+    public function getIterator()
     {
-        throw new \BadMethodCallException('Not implemented');
-    }
-
-    public function key()
-    {
-        throw new \BadMethodCallException('Not implemented');
-    }
-
-    public function next()
-    {
-    }
-
-    public function rewind()
-    {
-    }
-
-    public function valid()
-    {
-        return false;
+        return new \EmptyIterator();
     }
 }

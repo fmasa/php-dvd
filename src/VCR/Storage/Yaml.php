@@ -4,7 +4,6 @@ namespace VCR\Storage;
 
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Dumper;
-use VCR\Util\Assertion;
 
 /**
  * Yaml based storage for records.
@@ -45,85 +44,11 @@ class Yaml extends AbstractStorage
      */
     public function storeRecording(array $recording)
     {
-        fseek($this->handle, -1, SEEK_END);
-        fwrite($this->handle, "\n" . $this->yamlDumper->dump(array($recording), 4));
-        fflush($this->handle);
+        file_put_contents($this->filePath, "\n" . $this->yamlDumper->dump(array($recording), 4), FILE_APPEND);
     }
 
-    /**
-     * Parses the next record.
-     *
-     * @return void
-     */
-    public function next()
+    public function getIterator()
     {
-        $recording = $this->yamlParser->parse($this->readNextRecord());
-        $this->current = $recording[0];
-        ++$this->position;
-    }
-
-    /**
-     * Returns the next record in raw format.
-     *
-     * @return string Next record in raw format.
-     */
-    private function readNextRecord()
-    {
-        if ($this->isEOF) {
-            $this->isValidPosition = false;
-        }
-
-        $isInRecord = false;
-        $recording = '';
-
-        while (false !== ($line = fgets($this->handle))) {
-            $isNewArrayStart = strpos($line, '-') === 0;
-
-            if ($isInRecord && $isNewArrayStart) {
-                fseek($this->handle, -strlen($line), SEEK_CUR);
-                break;
-            }
-
-            if (!$isInRecord && $isNewArrayStart) {
-                $isInRecord = true;
-            }
-
-            if ($isInRecord) {
-                $recording .= $line;
-            }
-        }
-
-        if ($line == false) {
-            $this->isEOF = true;
-        }
-
-        return $recording;
-    }
-
-    /**
-     * Resets the storage to the beginning.
-     *
-     * @return void
-     */
-    public function rewind()
-    {
-        rewind($this->handle);
-        $this->isEOF = false;
-        $this->isValidPosition = true;
-        $this->position = 0;
-    }
-
-    /**
-     * Returns true if the current record is valid.
-     *
-     * @return boolean True if the current record is valid.
-     */
-    public function valid()
-    {
-        if (is_null($this->current)) {
-            $this->next();
-        }
-
-        return ! is_null($this->current) && $this->isValidPosition;
+        return new \ArrayIterator($this->yamlParser->parseFile($this->filePath) ?? []);
     }
 }
