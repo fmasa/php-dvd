@@ -12,7 +12,7 @@
 
     <testsuites>
         <testsuite name="VCR Test Suit">
-            <directory>./tests/VCR</directory>
+            <directory>./tests/DVD</directory>
         </testsuite>
     </testsuites>
 

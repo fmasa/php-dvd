@@ -1,6 +1,6 @@
 <?php
 
-namespace VCR\Example;
+namespace DVD\Example;
 
 /**
  * Converts temperature units from webservicex

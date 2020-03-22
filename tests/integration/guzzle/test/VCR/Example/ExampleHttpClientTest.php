@@ -1,6 +1,6 @@
 <?php
 
-namespace VCR\Example;
+namespace DVD\Example;
 
 use org\bovigo\vfs\vfsStream;
 
@@ -23,13 +23,13 @@ class ExampleHttpClientTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         vfsStream::setup('testDir');
-        \VCR\VCR::configure()->setCassettePath(vfsStream::url('testDir'));
+        \DVD\DVD::configure()->setCassettePath(vfsStream::url('testDir'));
     }
 
     public function testRequestGET()
     {
-        \VCR\VCR::turnOn();
-        \VCR\VCR::insertCassette('test-cassette.yml');
+        \DVD\DVD::turnOn();
+        \DVD\DVD::insertCassette('test-cassette.yml');
         $originalRequest = $this->requestGET();
         $this->assertValidGETResponse($originalRequest);
         $interceptedRequest = $this->requestGET();
@@ -37,13 +37,13 @@ class ExampleHttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($originalRequest, $interceptedRequest);
         $repeatInterceptedRequest = $this->requestGET();
         $this->assertEquals($interceptedRequest, $repeatInterceptedRequest);
-        \VCR\VCR::turnOff();
+        \DVD\DVD::turnOff();
     }
 
     public function testRequestPOST()
     {
-        \VCR\VCR::turnOn();
-        \VCR\VCR::insertCassette('test-cassette.yml');
+        \DVD\DVD::turnOn();
+        \DVD\DVD::insertCassette('test-cassette.yml');
         $originalRequest = $this->requestPOST();
         $this->assertValidPOSTResponse($originalRequest);
         $interceptedRequest = $this->requestPOST();
@@ -51,7 +51,7 @@ class ExampleHttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($originalRequest, $interceptedRequest);
         $repeatInterceptedRequest = $this->requestPOST();
         $this->assertEquals($interceptedRequest, $repeatInterceptedRequest);
-        \VCR\VCR::turnOff();
+        \DVD\DVD::turnOff();
     }
 
     protected function requestGET()
@@ -78,10 +78,10 @@ class ExampleHttpClientTest extends \PHPUnit_Framework_TestCase
 
     protected function requestPOSTIntercepted()
     {
-        \VCR\VCR::turnOn();
-        \VCR\VCR::insertCassette('test-cassette.yml');
+        \DVD\DVD::turnOn();
+        \DVD\DVD::insertCassette('test-cassette.yml');
         $info = $this->requestPOST();
-        \VCR\VCR::turnOff();
+        \DVD\DVD::turnOff();
 
         return $info;
     }

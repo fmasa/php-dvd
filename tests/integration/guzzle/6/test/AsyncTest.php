@@ -1,6 +1,6 @@
 <?php
 
-namespace VCR\Example;
+namespace DVD\Example;
 
 use GuzzleHttp\Client;
 use org\bovigo\vfs\vfsStream;
@@ -16,13 +16,13 @@ class AsyncTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         vfsStream::setup('testDir');
-        \VCR\VCR::configure()->setCassettePath(vfsStream::url('testDir'));
+        \DVD\DVD::configure()->setCassettePath(vfsStream::url('testDir'));
     }
 
     public function testAsyncLock()
     {
-        \VCR\VCR::turnOn();
-        \VCR\VCR::insertCassette('test-cassette.yml');
+        \DVD\DVD::turnOn();
+        \DVD\DVD::insertCassette('test-cassette.yml');
 
         $client = new Client();
         $promise = $client->getAsync(self::TEST_GET_URL);
@@ -34,7 +34,7 @@ class AsyncTest extends \PHPUnit_Framework_TestCase
 
         $this->assertValidGETResponse(\GuzzleHttp\json_decode($response->getBody()));
 
-        \VCR\VCR::turnOff();
+        \DVD\DVD::turnOff();
     }
 
     protected function assertValidGETResponse($info)

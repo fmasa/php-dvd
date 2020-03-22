@@ -1,4 +1,7 @@
 <?php
+
+use DVD\Example\ExampleHttpClient;
+
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 $loader = require_once 'vendor/autoload.php';
 
@@ -6,8 +9,8 @@ $loader = require_once 'vendor/autoload.php';
  * @var \Composer\Autoload\ClassLoader
  */
 $loader->addClassMap(array(
-    'VCR\\Example\\ExampleHttpClient' => 'ExampleHttpClient.php'
+    ExampleHttpClient::class => 'ExampleHttpClient.php'
 ));
 
-\VCR\VCR::turnOn();
-\VCR\VCR::turnOff();
+\DVD\DVD::turnOn();
+\DVD\DVD::turnOff();

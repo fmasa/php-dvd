@@ -1,6 +1,6 @@
 <?php
 
-namespace VCR\Example;
+namespace DVD\Example;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;

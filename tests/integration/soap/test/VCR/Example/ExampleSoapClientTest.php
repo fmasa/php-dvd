@@ -1,6 +1,6 @@
 <?php
 
-namespace VCR\Example;
+namespace DVD\Example;
 
 use org\bovigo\vfs\vfsStream;
 
@@ -15,7 +15,7 @@ class ExampleSoapClientTest extends \PHPUnit_Framework_TestCase
     {
         // Configure virtual filesystem.
         vfsStream::setup('testDir');
-        \VCR\VCR::configure()->setCassettePath(vfsStream::url('testDir'));
+        \DVD\DVD::configure()->setCassettePath(vfsStream::url('testDir'));
     }
 
     public function testCallDirectly()
@@ -45,10 +45,10 @@ class ExampleSoapClientTest extends \PHPUnit_Framework_TestCase
 
     protected function callSoapIntercepted()
     {
-        \VCR\VCR::turnOn();
-        \VCR\VCR::insertCassette('test-cassette.yml');
+        \DVD\DVD::turnOn();
+        \DVD\DVD::insertCassette('test-cassette.yml');
         $result = $this->callSoap();
-        \VCR\VCR::turnOff();
+        \DVD\DVD::turnOff();
 
         return $result;
     }
