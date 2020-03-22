@@ -12,7 +12,9 @@ class VCRTest extends \PHPUnit_Framework_TestCase
 {
     public static function setupBeforeClass()
     {
-        VCR::configure()->setCassettePath('tests/fixtures') ;
+        VCR::configure()
+            ->setCassettePath('tests/fixtures')
+            ->setStorage('json');
     }
 
     public function testUseStaticCallsNotInitialized()

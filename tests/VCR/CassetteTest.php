@@ -18,7 +18,7 @@ class CassetteTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         vfsStream::setup('test');
-        $this->cassette = new Cassette('test', new Configuration(), new Storage\Yaml(vfsStream::url('test/'), 'json_test'));
+        $this->cassette = new Cassette('test', new Configuration(), new Storage\Json(vfsStream::url('test/'), 'json_test'));
     }
 
     public function testInvalidCassetteName()
