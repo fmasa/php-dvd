@@ -35,16 +35,6 @@ class VCRFactory
         );
     }
 
-    /**
-     * Provides an instance of the StreamProcessor.
-     *
-     * @return \VCR\Util\StreamProcessor
-     */
-    protected function createVCRUtilStreamProcessor()
-    {
-        return new Util\StreamProcessor($this->config);
-    }
-
     protected function createStorage($cassetteName)
     {
         $dsn = $this->config->getCassettePath();
@@ -55,18 +45,12 @@ class VCRFactory
 
     protected function createVCRLibraryHooksSoapHook()
     {
-        return new LibraryHooks\SoapHook(
-            $this->getOrCreate('VCR\CodeTransform\SoapCodeTransform'),
-            $this->getOrCreate('VCR\Util\StreamProcessor')
-        );
+        return new LibraryHooks\SoapHook();
     }
 
     protected function createVCRLibraryHooksCurlHook()
     {
-        return new LibraryHooks\CurlHook(
-            $this->getOrCreate('VCR\CodeTransform\CurlCodeTransform'),
-            $this->getOrCreate('VCR\Util\StreamProcessor')
-        );
+        return new LibraryHooks\CurlHook();
     }
 
     /**

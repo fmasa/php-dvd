@@ -23,10 +23,7 @@ class VCRFactoryTest extends \PHPUnit_Framework_TestCase
         return array(
             array('VCR\Videorecorder'),
             array('VCR\Configuration'),
-            array('VCR\Util\StreamProcessor'),
             array('VCR\Util\HttpClient'),
-            array('VCR\CodeTransform\CurlCodeTransform'),
-            array('VCR\CodeTransform\SoapCodeTransform'),
             array('VCR\LibraryHooks\CurlHook'),
             array('VCR\LibraryHooks\SoapHook'),
             array('VCR\LibraryHooks\StreamWrapperHook'),

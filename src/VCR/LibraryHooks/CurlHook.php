@@ -51,24 +51,11 @@ class CurlHook implements LibraryHook
     protected static $multiExecLastChs = array();
 
     /**
-     * @var AbstractCodeTransform
-     */
-    private $codeTransformer;
-
-    /**
-     * @var StreamProcessor
-     */
-    private $processor;
-
-    /**
      * Creates a new cURL hook instance.
-     *
-     * @param AbstractCodeTransform  $codeTransformer
-     * @param StreamProcessor $processor
      *
      * @throws \BadMethodCallException in case the cURL extension is not installed.
      */
-    public function __construct(AbstractCodeTransform $codeTransformer, StreamProcessor $processor)
+    public function __construct()
     {
         if (!function_exists('curl_version')) {
             // @codeCoverageIgnoreStart
@@ -77,8 +64,6 @@ class CurlHook implements LibraryHook
             );
             // @codeCoverageIgnoreEnd
         }
-        $this->processor = $processor;
-        $this->codeTransformer = $codeTransformer;
     }
 
     /**
@@ -91,10 +76,6 @@ class CurlHook implements LibraryHook
         if (static::$status == self::ENABLED) {
             return;
         }
-
-        $this->codeTransformer->register();
-        $this->processor->appendCodeTransformer($this->codeTransformer);
-        $this->processor->intercept();
 
         self::$requestCallback = $requestCallback;
 
@@ -169,6 +150,11 @@ class CurlHook implements LibraryHook
         self::$curlOptions[(int) $curlHandle] = array();
 
         return $curlHandle;
+    }
+
+    public function curlMultiInit(...$args)
+    {
+        return curl_multi_init(...$args);
     }
 
     /**
@@ -319,6 +305,16 @@ class CurlHook implements LibraryHook
         static::$curlOptions[(int) $curlHandle][$option] = $value;
 
         return \curl_setopt($curlHandle, $option, $value);
+    }
+
+    public static function curlClose(...$args)
+    {
+        return curl_close(...$args);
+    }
+
+    public static function curlMultiClose(...$args)
+    {
+        return curl_multi_close(...$args);
     }
 
     /**

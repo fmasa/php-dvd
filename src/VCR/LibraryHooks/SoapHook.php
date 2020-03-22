@@ -5,8 +5,6 @@ namespace VCR\LibraryHooks;
 use VCR\Util\Assertion;
 use VCR\VCRException;
 use VCR\Request;
-use VCR\CodeTransform\AbstractCodeTransform;
-use VCR\Util\StreamProcessor;
 
 /**
  * Library hook for curl functions.
@@ -23,25 +21,7 @@ class SoapHook implements LibraryHook
      */
     private $status = self::DISABLED;
 
-    /**
-     * @var AbstractCodeTransform
-     */
-    private $codeTransformer;
-
-    /**
-     * @var \VCR\Util\StreamProcessor
-     */
-    private $processor;
-
-    /**
-     * Creates a SOAP hook instance.
-     *
-     * @param AbstractCodeTransform  $codeTransformer
-     * @param StreamProcessor $processor
-     *
-     * @throws \BadMethodCallException in case the Soap extension is not installed.
-     */
-    public function __construct(AbstractCodeTransform $codeTransformer, StreamProcessor $processor)
+    public function __construct()
     {
         if (!class_exists('\SoapClient')) {
             throw new \BadMethodCallException('For soap support you need to install the soap extension.');
@@ -50,9 +30,6 @@ class SoapHook implements LibraryHook
         if (!class_exists('\DOMDocument')) {
             throw new \BadMethodCallException('For soap support you need to install the xml extension.');
         }
-
-        $this->processor = $processor;
-        $this->codeTransformer = $codeTransformer;
     }
 
     /**
@@ -108,10 +85,6 @@ class SoapHook implements LibraryHook
         if ($this->status == self::ENABLED) {
             return;
         }
-
-        $this->codeTransformer->register();
-        $this->processor->appendCodeTransformer($this->codeTransformer);
-        $this->processor->intercept();
 
         $this->status = self::ENABLED;
     }

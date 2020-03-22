@@ -4,9 +4,6 @@ namespace VCR\LibraryHooks;
 
 use VCR\Request;
 use VCR\Response;
-use VCR\Configuration;
-use VCR\CodeTransform\CurlCodeTransform;
-use VCR\Util\StreamProcessor;
 
 /**
  * Test if intercepting http/https using curl works.
@@ -14,19 +11,15 @@ use VCR\Util\StreamProcessor;
 class CurlHookTest extends \PHPUnit_Framework_TestCase
 {
     public $expected = 'example response body';
+
     /**
-     * @var \VCR\Configuration
-     */
-    protected $config;
-    /**
-     * @var \VCR\LibraryHooks\CurlHook
+     * @var CurlHook
      */
     protected $curlHook;
 
     public function setup()
     {
-        $this->config = new Configuration();
-        $this->curlHook = new CurlHook(new CurlCodeTransform(), new StreamProcessor($this->config));
+        $this->curlHook = new CurlHook();
     }
 
     public function testShouldBeEnabledAfterEnabling()
@@ -44,10 +37,10 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
     {
         $this->curlHook->enable($this->getTestCallback());
 
-        $curlHandle = curl_init('http://example.com/');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        $actual = curl_exec($curlHandle);
-        curl_close($curlHandle);
+        $curlHandle = CurlHook::curl_init('http://example.com/');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        $actual = CurlHook::curl_exec($curlHandle);
+        CurlHook::curl_close($curlHandle);
 
         $this->curlHook->disable();
         $this->assertEquals($this->expected, $actual, 'Response was not returned.');
@@ -58,10 +51,10 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
      */
     public function testShouldNotInterceptCallWhenNotEnabled()
     {
-        $curlHandle = curl_init('http://example.com/');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($curlHandle);
-        curl_close($curlHandle);
+        $curlHandle = CurlHook::curl_init('http://example.com/');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        $response = CurlHook::curl_exec($curlHandle);
+        CurlHook::curl_close($curlHandle);
 
         $this->assertContains('Example Domain', $response, 'Response from http://example.com should contain "Example Domain".');
     }
@@ -79,22 +72,22 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
         );
         $this->curlHook->disable();
 
-        $curlHandle = curl_init();
-        curl_setopt($curlHandle, CURLOPT_URL, 'http://example.com/');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($curlHandle);
-        curl_close($curlHandle);
+        $curlHandle = CurlHook::curl_init();
+        CurlHook::curl_setopt($curlHandle, CURLOPT_URL, 'http://example.com/');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        CurlHook::curl_exec($curlHandle);
+        CurlHook::curl_close($curlHandle);
     }
 
     public function testShouldWriteFileOnFileDownload()
     {
         $this->curlHook->enable($this->getTestCallback());
 
-        $curlHandle = curl_init('https://example.com/');
+        $curlHandle = CurlHook::curl_init('https://example.com/');
         $filePointer = fopen('php://temp/test_file', 'w');
-        curl_setopt($curlHandle, CURLOPT_FILE, $filePointer);
-        curl_exec($curlHandle);
-        curl_close($curlHandle);
+        CurlHook::curl_setopt($curlHandle, CURLOPT_FILE, $filePointer);
+        CurlHook::curl_exec($curlHandle);
+        CurlHook::curl_close($curlHandle);
         rewind($filePointer);
         $actual = fread($filePointer, 1024);
         fclose($filePointer);
@@ -107,13 +100,13 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
     {
         $this->curlHook->enable($this->getTestCallback());
 
-        $curlHandle = curl_init('http://example.com/');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, false);
+        $curlHandle = CurlHook::curl_init('http://example.com/');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, false);
         ob_start();
-        curl_exec($curlHandle);
+        CurlHook::curl_exec($curlHandle);
         $actual = ob_get_contents();
         ob_end_clean();
-        curl_close($curlHandle);
+        CurlHook::curl_close($curlHandle);
 
         $this->curlHook->disable();
         $this->assertEquals($this->expected, $actual, 'Response was not written on stdout.');
@@ -133,10 +126,10 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $curlHandle = curl_init('http://example.com');
-        curl_setopt($curlHandle, CURLOPT_POSTFIELDS, array('para1' => 'val1', 'para2' => 'val2'));
-        curl_exec($curlHandle);
-        curl_close($curlHandle);
+        $curlHandle = CurlHook::curl_init('http://example.com');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_POSTFIELDS, array('para1' => 'val1', 'para2' => 'val2'));
+        CurlHook::curl_exec($curlHandle);
+        CurlHook::curl_close($curlHandle);
         $this->curlHook->disable();
     }
 
@@ -154,15 +147,15 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $curlHandle = curl_init('http://example.com');
-        curl_setopt_array(
+        $curlHandle = CurlHook::curl_init('http://example.com');
+        CurlHook::curl_setopt_array(
             $curlHandle,
             array(
                 CURLOPT_POSTFIELDS => array('para1' => 'val1', 'para2' => 'val2')
             )
         );
-        curl_exec($curlHandle);
-        curl_close($curlHandle);
+        CurlHook::curl_exec($curlHandle);
+        CurlHook::curl_close($curlHandle);
         $this->curlHook->disable();
     }
 
@@ -170,11 +163,11 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
     {
         $this->curlHook->enable($this->getTestCallback());
 
-        $curlHandle = curl_init('http://example.com');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($curlHandle);
-        $infoHttpCode = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
-        curl_close($curlHandle);
+        $curlHandle = CurlHook::curl_init('http://example.com');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        CurlHook::curl_exec($curlHandle);
+        $infoHttpCode = CurlHook::curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
+        CurlHook::curl_close($curlHandle);
 
         $this->assertSame(200, $infoHttpCode, 'HTTP status not set.');
 
@@ -190,11 +183,11 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
         $integerStatusCode = 200;
         $this->curlHook->enable($this->getTestCallback($stringStatusCode));
 
-        $curlHandle = curl_init('http://example.com');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($curlHandle);
-        $infoHttpCode = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
-        curl_close($curlHandle);
+        $curlHandle = CurlHook::curl_init('http://example.com');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        CurlHook::curl_exec($curlHandle);
+        $infoHttpCode = CurlHook::curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
+        CurlHook::curl_close($curlHandle);
 
         $this->assertSame($integerStatusCode, $infoHttpCode, 'HTTP status not set.');
 
@@ -205,11 +198,11 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
     {
         $this->curlHook->enable($this->getTestCallback());
 
-        $curlHandle = curl_init('http://example.com');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($curlHandle);
-        $info = curl_getinfo($curlHandle);
-        curl_close($curlHandle);
+        $curlHandle = CurlHook::curl_init('http://example.com');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        CurlHook::curl_exec($curlHandle);
+        $info = CurlHook::curl_getinfo($curlHandle);
+        CurlHook::curl_close($curlHandle);
 
         $this->assertInternalType('array', $info, 'curl_getinfo() should return an array.');
         $this->assertCount(21, $info, 'curl_getinfo() should return 21 values.');
@@ -220,11 +213,11 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
     {
         $this->curlHook->enable($this->getTestCallback());
 
-        $curlHandle = curl_init('http://example.com');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($curlHandle);
+        $curlHandle = CurlHook::curl_init('http://example.com');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        CurlHook::curl_exec($curlHandle);
         $info = curl_getinfo($curlHandle);
-        curl_close($curlHandle);
+        CurlHook::curl_close($curlHandle);
 
         $this->assertInternalType('array', $info, 'curl_getinfo() should return an array.');
         $this->assertArrayHasKey('url', $info);
@@ -279,22 +272,22 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $curlHandle1 = curl_init('http://example.com');
-        $curlHandle2 = curl_init('http://example.com');
+        $curlHandle1 = CurlHook::curl_init('http://example.com');
+        $curlHandle2 = CurlHook::curl_init('http://example.com');
 
-        $curlMultiHandle = curl_multi_init();
-        curl_multi_add_handle($curlMultiHandle, $curlHandle1);
-        curl_multi_add_handle($curlMultiHandle, $curlHandle2);
+        $curlMultiHandle = CurlHook::curl_multi_init();
+        CurlHook::curl_multi_add_handle($curlMultiHandle, $curlHandle1);
+        CurlHook::curl_multi_add_handle($curlMultiHandle, $curlHandle2);
 
-        $mh = curl_multi_exec($curlMultiHandle);
+        $mh = CurlHook::curl_multi_exec($curlMultiHandle);
 
-        $lastInfo       = curl_multi_info_read($mh);
-        $secondLastInfo = curl_multi_info_read($mh);
-        $afterLastInfo  = curl_multi_info_read($mh);
+        $lastInfo       = CurlHook::curl_multi_info_read($mh);
+        $secondLastInfo = CurlHook::curl_multi_info_read($mh);
+        $afterLastInfo  = CurlHook::curl_multi_info_read($mh);
 
-        curl_multi_remove_handle($curlMultiHandle, $curlHandle1);
-        curl_multi_remove_handle($curlMultiHandle, $curlHandle2);
-        curl_multi_close($curlMultiHandle);
+        CurlHook::curl_multi_remove_handle($curlMultiHandle, $curlHandle1);
+        CurlHook::curl_multi_remove_handle($curlMultiHandle, $curlHandle2);
+        CurlHook::curl_multi_close($curlMultiHandle);
 
         $this->curlHook->disable();
 
@@ -327,10 +320,10 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
         $curlHandle = curl_init('http://example.com');
 
         $curlMultiHandle = curl_multi_init();
-        curl_multi_add_handle($curlMultiHandle, $curlHandle);
-        curl_multi_exec($curlMultiHandle);
-        curl_multi_remove_handle($curlMultiHandle, $curlHandle);
-        curl_multi_close($curlMultiHandle);
+        CurlHook::curl_multi_add_handle($curlMultiHandle, $curlHandle);
+        CurlHook::curl_multi_exec($curlMultiHandle);
+        CurlHook::curl_multi_remove_handle($curlMultiHandle, $curlHandle);
+        CurlHook::curl_multi_close($curlMultiHandle);
     }
 
     /**
@@ -350,10 +343,10 @@ class CurlHookTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $curlHandle = curl_init('http://example.com');
-        curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, 'DELETE');
-        curl_reset($curlHandle);
-        curl_exec($curlHandle);
+        $curlHandle = CurlHook::curl_init('http://example.com');
+        CurlHook::curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        CurlHook::curl_reset($curlHandle);
+        CurlHook::curl_exec($curlHandle);
 
         $this->curlHook->disable();
     }

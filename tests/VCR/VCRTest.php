@@ -4,6 +4,7 @@ namespace VCR;
 
 use Symfony\Component\EventDispatcher\Event;
 use org\bovigo\vfs\vfsStream;
+use VCR\Util\SoapClient;
 
 /**
  * Test integration of PHPVCR with PHPUnit.
@@ -53,12 +54,12 @@ class VCRTest extends \PHPUnit_Framework_TestCase
 
     private function doCurlGetRequest($url)
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, false);
-        $output = curl_exec($ch);
-        curl_close($ch);
+        $ch = \VCR\LibraryHooks\CurlHook::curl_init();
+        \VCR\LibraryHooks\CurlHook::curl_setopt($ch, CURLOPT_URL, $url);
+        \VCR\LibraryHooks\CurlHook::curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        \VCR\LibraryHooks\CurlHook::curl_setopt($ch, CURLOPT_POST, false);
+        $output = \VCR\LibraryHooks\CurlHook::curl_exec($ch);
+        \VCR\LibraryHooks\CurlHook::curl_close($ch);
 
         return $output;
     }
@@ -69,7 +70,7 @@ class VCRTest extends \PHPUnit_Framework_TestCase
         VCR::turnOn();
         VCR::insertCassette('unittest_soap_test');
 
-        $client = new \SoapClient('https://raw.githubusercontent.com/php-vcr/php-vcr/master/tests/fixtures/soap/wsdl/weather.wsdl', array('soap_version' => SOAP_1_2));
+        $client = new SoapClient('https://raw.githubusercontent.com/php-vcr/php-vcr/master/tests/fixtures/soap/wsdl/weather.wsdl', array('soap_version' => SOAP_1_2));
         $actual = $client->GetCityWeatherByZIP(array('ZIP' => '10013'));
         $temperature = $actual->GetCityWeatherByZIPResult->Temperature;
 
